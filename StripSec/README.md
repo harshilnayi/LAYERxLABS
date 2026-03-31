@@ -4,7 +4,7 @@
 
 This project is intentionally built on the defensive side. Instead of recreating attack tooling, `StripSec` focuses on transport downgrade risk, HTTPS hygiene, cookie safety, and session handling mistakes inside controlled lab traffic.
 
-That makes it safer, easier to explain, and much stronger for a resume.
+That makes it safer, easier to explain, and stronger as a learning project.
 
 ## What It Does Right Now
 
@@ -42,7 +42,7 @@ Each run writes:
 
 - a JSON report for automation
 - a Markdown summary for quick review
-- an HTML dashboard for demos and portfolio use
+- an HTML dashboard for easier review
 
 ## Project Shape
 

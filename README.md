@@ -1,6 +1,6 @@
 # LAYERxLABS
 
-`LAYERxLABS` is the home base for a three-project security lab series built around real networking layers and real interview stories.
+`LAYERxLABS` is the home base for a three-project security lab series built around real networking layers and hands-on learning.
 
 The goal is simple: ship projects that look like they came from people who actually used the tools, wrote down what mattered, and understood the tradeoffs.
 
@@ -14,7 +14,7 @@ Current status: review and hardening stage.
 
 ### SniffCore
 
-Layer 2 packet-capture analysis project focused on turning raw traffic into findings that are easy to explain in an interview.
+Layer 2 packet-capture analysis project focused on turning raw traffic into findings that are easy to review and understand.
 
 Current status: Phase 3 is live with HTML reporting, scored findings, and a cleaner case-study flow.
 
@@ -41,7 +41,7 @@ LAYERxLABS/
 
 - Clear project scope instead of tool dumping
 - Reproducible lab work
-- Evidence that can be shown to a reviewer or hiring manager
+- Evidence that can be shared cleanly and revisited later
 - Writeups that sound like engineers, not brochure copy
 
 ## Ground Rules

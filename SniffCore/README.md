@@ -23,9 +23,9 @@ Phase 3 is now working end-to-end.
 
 ## Why This Project Is Worth Building
 
-This is the kind of project that sounds better in an interview than "I used Wireshark."
+This project is useful because it turns a pile of Layer 2 traffic into something easier to reason about.
 
-The better story is:
+The core idea is:
 
 > I built a Layer 2 analysis tool that could take a packet capture from a controlled lab, surface the interesting parts automatically, and generate a report before anyone had to dig through frames by hand.
 
@@ -61,7 +61,7 @@ Each run writes:
 
 - a JSON report for automation or later processing
 - a Markdown report for quick review and sharing
-- an HTML dashboard that is easier to show in a portfolio or demo
+- an HTML dashboard that is easier to review and share
 
 ## Project Shape
 
@@ -77,14 +77,14 @@ Each run writes:
 
 ## What Comes Next
 
-The next round is portfolio finishing work:
+The next round is polish work:
 
 - one polished end-to-end writeup with screenshots
-- a tighter metric story for resume bullets
+- a cleaner metrics summary across more fixtures
 - fixture expansion beyond the two current scenarios
 - final prep for the Layer 5 follow-up project
 
-## Resume Angle
+## Learning Value
 
 This project gets strong when we can show numbers:
 

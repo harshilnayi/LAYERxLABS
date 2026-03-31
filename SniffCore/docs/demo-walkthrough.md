@@ -34,13 +34,13 @@ When the HTML report opens, show these first:
 
 That sequence tells the story fast and makes the project feel intentional.
 
-## Good Resume Language
+## Clean Project Summary
 
 - Built a Layer 2 packet-analysis workflow for controlled lab captures using Python and Scapy
 - Added baseline-aware detection for ARP, DHCP, and STP anomalies
 - Generated JSON, Markdown, and HTML reports to cut down manual packet triage time
 
-## Good Interview Framing
+## How To Explain It
 
 If someone asks why this matters, the clean answer is:
 

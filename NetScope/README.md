@@ -6,7 +6,7 @@ Right now this folder is intentionally light because the first implementation st
 
 - the scan flow has to match what the docs promise
 - the evidence has to be useful, not just dumped to disk
-- the repo has to look personal and credible on a resume
+- the repo has to feel real, understandable, and worth learning from
 
 ## Current Hand-Off Status
 

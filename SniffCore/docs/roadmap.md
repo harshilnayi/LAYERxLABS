@@ -36,11 +36,11 @@ Status: working first pass
 
 Status: working
 
-## Milestone 5: Portfolio Finish
+## Milestone 5: Project Finish
 
 - final screenshots
 - write-up with setup, findings, and lessons learned
-- metrics table for resume bullets
+- metrics table across sample captures
 - clean sample data and repeatable demo steps
 
 Status: started
