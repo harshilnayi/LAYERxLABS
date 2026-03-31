@@ -4,16 +4,20 @@
 
 The point of this project is not to brag that we opened Wireshark. The point is to take a Layer 2 capture from a lab, break it down, and hand back something another person can understand in a few minutes.
 
-Phase 1 is now working end-to-end.
+Phase 2 is now working end-to-end.
 
-## What Phase 1 Does
+## What It Does Right Now
 
 - reads `.pcap` captures from a lab workflow
-- extracts source and destination MAC addresses, IP hints, frame sizes, and protocol labels
+- extracts source and destination MAC addresses, IP hints, frame sizes, protocol labels, and protocol-specific metadata
 - summarizes hosts, protocol mix, broadcast traffic, and top talkers
 - flags duplicate IP-to-MAC mappings
 - flags rapid source-MAC churn inside short windows
 - flags captures where broadcast traffic is dominating the frame mix
+- raises ARP spoofing findings when ARP replies drift away from expected mappings
+- flags DHCP server anomalies, including offers from servers outside a known-good baseline
+- flags STP sender drift and unexpected BPDU sources
+- compares a suspicious capture against a known-good baseline capture
 - writes both JSON and Markdown reports
 
 ## Why This Project Is Worth Building
@@ -32,10 +36,16 @@ Install the package locally:
 python -m pip install -e .
 ```
 
-Analyze the sample capture:
+Analyze the sample Phase 1 capture:
 
 ```powershell
 python -m sniffcore --pcap .\tests\fixtures\sample_phase1_lab.pcap --output-dir .\reports
+```
+
+Run a baseline-aware Phase 2 comparison:
+
+```powershell
+python -m sniffcore --pcap .\tests\fixtures\phase2_suspect_lab.pcap --baseline-pcap .\tests\fixtures\phase2_baseline_clean.pcap --output-dir .\reports
 ```
 
 Run the test suite:
@@ -55,19 +65,21 @@ Each run writes:
 
 - `src/sniffcore/ingest.py` handles capture loading
 - `src/sniffcore/analysis.py` builds host and protocol summaries
+- `src/sniffcore/baseline.py` builds and compares known-good capture profiles
 - `src/sniffcore/detectors.py` raises the first Layer 2 findings
 - `src/sniffcore/reporting.py` writes the report files
 - `src/sniffcore/cli.py` runs the project from the command line
 - `tests/fixtures/sample_phase1_lab.pcap` is the synthetic lab capture used for validation
+- `tests/fixtures/phase2_baseline_clean.pcap` and `tests/fixtures/phase2_suspect_lab.pcap` drive the baseline-aware checks
 
 ## What Comes Next
 
-Phase 2 will push this from useful to sharp:
+Phase 3 is where this turns from solid to polished:
 
-- stronger ARP spoofing logic
-- DHCP anomaly detection
-- STP or BPDU-specific checks
-- baseline comparison against a known-good capture
+- HTML reporting
+- clearer severity scoring and evidence summaries
+- better fixture variety
+- case-study polish for the final portfolio
 
 ## Resume Angle
 

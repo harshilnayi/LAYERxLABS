@@ -14,6 +14,7 @@ class FrameRecord:
     src_ip: str | None = None
     dst_ip: str | None = None
     is_broadcast: bool = False
+    metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return asdict(self)

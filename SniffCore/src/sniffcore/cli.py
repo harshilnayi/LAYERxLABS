@@ -28,6 +28,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=5,
         help="Number of top talkers to include in the report.",
     )
+    parser.add_argument(
+        "--baseline-pcap",
+        help="Optional known-good capture used for baseline comparison.",
+    )
     return parser
 
 
@@ -35,7 +39,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    report = analyze_capture(args.pcap, top_talkers_limit=args.top)
+    report = analyze_capture(
+        args.pcap,
+        top_talkers_limit=args.top,
+        baseline_capture_path=args.baseline_pcap,
+    )
     json_path, markdown_path = write_reports(report, args.output_dir)
 
     print(json.dumps(report["overview"], indent=2))

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict
 
 from .analysis import map_ip_to_macs
 from .models import Finding, FrameRecord
@@ -90,9 +90,175 @@ def detect_mac_churn(frames: list[FrameRecord], window_seconds: int = 10) -> lis
     return findings
 
 
-def run_phase1_detectors(frames: list[FrameRecord]) -> list[Finding]:
+def detect_arp_spoofing(frames: list[FrameRecord], baseline_profile: dict | None = None) -> list[Finding]:
+    arp_replies = [
+        frame
+        for frame in frames
+        if frame.protocol == "ARP"
+        and frame.metadata.get("arp_op") == 2
+        and frame.src_ip
+        and frame.src_mac
+    ]
+
+    claims: dict[str, set[str]] = defaultdict(set)
+    for frame in arp_replies:
+        claims[frame.src_ip].add(frame.src_mac)
+
+    findings: list[Finding] = []
+    for ip, macs in sorted(claims.items()):
+        baseline_macs = set((baseline_profile or {}).get("ip_to_macs", {}).get(ip, []))
+        unexpected_macs = sorted(set(macs) - baseline_macs) if baseline_macs else []
+
+        if len(macs) < 2 and not unexpected_macs:
+            continue
+
+        findings.append(
+            Finding(
+                category="arp_spoofing",
+                severity="high",
+                title=f"ARP reply drift detected for {ip}",
+                summary=(
+                    f"ARP replies in the capture associate {ip} with {len(macs)} source MAC addresses. "
+                    "That is a strong hint of spoofing, cache poisoning, or deliberate lab interference."
+                ),
+                evidence={
+                    "ip": ip,
+                    "observed_reply_macs": sorted(macs),
+                    "baseline_reply_macs": sorted(baseline_macs),
+                    "unexpected_macs": unexpected_macs,
+                },
+            )
+        )
+
+    return findings
+
+
+def detect_dhcp_anomalies(frames: list[FrameRecord], baseline_profile: dict | None = None) -> list[Finding]:
+    server_frames = [
+        frame
+        for frame in frames
+        if frame.protocol == "DHCP"
+        and frame.src_mac
+        and frame.metadata.get("dhcp_message_type") in {"offer", "ack", "nak"}
+    ]
+    if not server_frames:
+        return []
+
+    server_macs = sorted({frame.src_mac for frame in server_frames if frame.src_mac})
+    findings: list[Finding] = []
+
+    if len(server_macs) > 1:
+        findings.append(
+            Finding(
+                category="dhcp_anomaly",
+                severity="high",
+                title="Multiple DHCP servers answered in the same capture",
+                summary=(
+                    f"The capture contains DHCP server responses from {len(server_macs)} different MAC addresses. "
+                    "In a controlled lab that is usually enough to justify a closer look for rogue DHCP behavior."
+                ),
+                evidence={"server_macs": server_macs},
+            )
+        )
+
+    baseline_servers = sorted((baseline_profile or {}).get("dhcp_servers", []))
+    unexpected_servers = sorted(set(server_macs) - set(baseline_servers)) if baseline_servers else []
+    if unexpected_servers:
+        findings.append(
+            Finding(
+                category="rogue_dhcp_server",
+                severity="high",
+                title="DHCP responses came from a server outside the baseline",
+                summary=(
+                    "A DHCP server responded from a MAC address that does not appear in the known-good baseline capture."
+                ),
+                evidence={
+                    "baseline_servers": baseline_servers,
+                    "unexpected_servers": unexpected_servers,
+                },
+            )
+        )
+
+    return findings
+
+
+def detect_stp_anomalies(frames: list[FrameRecord], baseline_profile: dict | None = None) -> list[Finding]:
+    stp_frames = [frame for frame in frames if frame.protocol == "STP" and frame.src_mac]
+    if not stp_frames:
+        return []
+
+    senders = sorted({frame.src_mac for frame in stp_frames if frame.src_mac})
+    root_macs = sorted({frame.metadata.get("stp_root_mac") for frame in stp_frames if frame.metadata.get("stp_root_mac")})
+    findings: list[Finding] = []
+
+    if len(senders) > 1:
+        findings.append(
+            Finding(
+                category="stp_topology_change",
+                severity="medium",
+                title="More than one STP sender appeared in the capture",
+                summary=(
+                    f"STP frames were sourced by {len(senders)} different MAC addresses. "
+                    "That can indicate topology drift, rogue switching behavior, or staged lab traffic."
+                ),
+                evidence={"stp_senders": senders, "root_macs": root_macs},
+            )
+        )
+
+    baseline_senders = sorted((baseline_profile or {}).get("stp_senders", []))
+    unexpected_senders = sorted(set(senders) - set(baseline_senders)) if baseline_senders else []
+    if unexpected_senders:
+        findings.append(
+            Finding(
+                category="stp_sender_drift",
+                severity="high",
+                title="A new STP sender appeared outside the baseline",
+                summary=(
+                    "The capture includes BPDU traffic from a MAC address that was not present in the baseline capture."
+                ),
+                evidence={
+                    "baseline_stp_senders": baseline_senders,
+                    "unexpected_stp_senders": unexpected_senders,
+                    "observed_root_macs": root_macs,
+                },
+            )
+        )
+
+    return findings
+
+
+def detect_baseline_drift(frames: list[FrameRecord], baseline_profile: dict | None = None) -> list[Finding]:
+    if not baseline_profile:
+        return []
+
+    current_source_macs = sorted({frame.src_mac for frame in frames if frame.src_mac})
+    new_source_macs = sorted(set(current_source_macs) - set(baseline_profile["source_macs"]))
+    if len(new_source_macs) < 2:
+        return []
+
+    return [
+        Finding(
+            category="baseline_drift",
+            severity="medium",
+            title="The capture contains new source MAC addresses compared with the baseline",
+            summary=(
+                f"{len(new_source_macs)} source MAC addresses in the capture were not present in the known-good baseline."
+            ),
+            evidence={
+                "new_source_macs": new_source_macs,
+                "baseline_source_macs": baseline_profile["source_macs"],
+            },
+        )
+    ]
+
+
+def run_detectors(frames: list[FrameRecord], baseline_profile: dict | None = None) -> list[Finding]:
     findings = []
     findings.extend(detect_duplicate_ip_mappings(frames))
     findings.extend(detect_mac_churn(frames))
     findings.extend(detect_broadcast_noise(frames))
+    findings.extend(detect_arp_spoofing(frames, baseline_profile=baseline_profile))
+    findings.extend(detect_dhcp_anomalies(frames, baseline_profile=baseline_profile))
+    findings.extend(detect_stp_anomalies(frames, baseline_profile=baseline_profile))
+    findings.extend(detect_baseline_drift(frames, baseline_profile=baseline_profile))
     return findings

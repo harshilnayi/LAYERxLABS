@@ -1,6 +1,6 @@
 # SniffCore Roadmap
 
-Current status: Milestone 1 is complete and the first usable Phase 1 flow is in place.
+Current status: Milestones 1 through 4 have a working first pass, including baseline-aware Phase 2 detection.
 
 ## Milestone 1: Skeleton
 
@@ -16,6 +16,8 @@ Current status: Milestone 1 is complete and the first usable Phase 1 flow is in 
 - generate a Markdown summary that reads cleanly
 - add tests for parsing edge cases
 
+Status: working
+
 ## Milestone 3: Detection
 
 - ARP spoofing detector
@@ -23,12 +25,16 @@ Current status: Milestone 1 is complete and the first usable Phase 1 flow is in 
 - STP/BPDU anomaly detector
 - noisy broadcast detector
 
+Status: working first pass
+
 ## Milestone 4: Evidence
 
 - JSON export for automation
 - HTML report for presentation
 - severity scoring with reason strings
 - before/after comparison against a known-good capture
+
+Status: JSON and Markdown exports plus baseline comparison are working. HTML is still pending.
 
 ## Milestone 5: Portfolio Finish
 

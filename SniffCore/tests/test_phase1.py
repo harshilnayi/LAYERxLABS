@@ -39,7 +39,7 @@ def test_report_writer_outputs_json_and_markdown(tmp_path: Path) -> None:
     assert markdown_path.exists()
     payload = json.loads(json_path.read_text(encoding="utf-8"))
     assert payload["overview"]["total_frames"] == 11
-    assert "SniffCore Phase 1 Report" in markdown_path.read_text(encoding="utf-8")
+    assert "SniffCore Analysis Report" in markdown_path.read_text(encoding="utf-8")
 
 
 def test_cli_runs_end_to_end(tmp_path: Path) -> None:

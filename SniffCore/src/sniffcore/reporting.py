@@ -9,7 +9,7 @@ def _render_markdown(report: dict) -> str:
     capture = report["capture"]
     overview = report["overview"]
     lines = [
-        "# SniffCore Phase 1 Report",
+        "# SniffCore Analysis Report",
         "",
         f"- Capture file: `{capture['source']}`",
         f"- Frames processed: {overview['total_frames']}",
@@ -39,9 +39,24 @@ def _render_markdown(report: dict) -> str:
             ]
         )
 
+    if report.get("baseline_comparison"):
+        comparison = report["baseline_comparison"]
+        lines.extend(
+            [
+                "## Baseline Comparison",
+                "",
+                f"- Baseline file: `{capture['baseline_source']}`",
+                f"- New source MACs: {', '.join(comparison['new_source_macs']) or 'None'}",
+                f"- New protocols: {', '.join(comparison['new_protocols']) or 'None'}",
+                f"- New DHCP servers: {', '.join(comparison['new_dhcp_servers']) or 'None'}",
+                f"- New STP senders: {', '.join(comparison['new_stp_senders']) or 'None'}",
+                "",
+            ]
+        )
+
     lines.extend(["## Findings", ""])
     if not report["findings"]:
-        lines.append("- No phase 1 findings were raised.")
+        lines.append("- No findings were raised.")
     else:
         for finding in report["findings"]:
             lines.extend(
