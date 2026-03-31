@@ -3,11 +3,5 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
-dist/
-build/
-*.egg-info/
 
-reports/generated/
 SniffCore/data/runtime/
-
-__review_LayerSentinel/
