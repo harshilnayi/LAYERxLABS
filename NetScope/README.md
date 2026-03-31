@@ -2,7 +2,7 @@
 
 `NetScope` is the Layer 1 slot inside `LAYERxLABS`.
 
-Right now this folder is intentionally light because the first implementation started outside this repo as `LayerSentinel`. Before we carry that work in here, we want the project story to be solid:
+Right now this folder is intentionally light because the first implementation started outside this repo. Before we carry that work in here, we want the project story to be solid:
 
 - the scan flow has to match what the docs promise
 - the evidence has to be useful, not just dumped to disk
@@ -10,9 +10,8 @@ Right now this folder is intentionally light because the first implementation st
 
 ## Current Hand-Off Status
 
-- External repo reviewed: `LayerSentinel`
-- Review writeup: [../reports/layer1-layersentinel-review.md](../reports/layer1-layersentinel-review.md)
-- Next step: fix the live-scan logic, tighten the packaging, and then fold the improved version into `NetScope`
+- Layer 1 work is being tightened outside this repo first
+- Next step: fold the improved version into `NetScope`
 
 ## What NetScope Should Eventually Show
 
@@ -21,4 +20,4 @@ Right now this folder is intentionally light because the first implementation st
 - practical investigation reports
 - clear before/after metrics from test scans
 
-This folder will grow once the Layer 1 review feedback is applied.
+This folder will grow once the Layer 1 work is ready to be moved in.

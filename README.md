@@ -10,7 +10,7 @@ The goal is simple: ship projects that look like they came from people who actua
 
 Layer 1 rogue-device investigation and network visibility work.
 
-Current status: review and hardening stage. The first external code review is tracked in [reports/layer1-layersentinel-review.md](reports/layer1-layersentinel-review.md).
+Current status: review and hardening stage.
 
 ### SniffCore
 
