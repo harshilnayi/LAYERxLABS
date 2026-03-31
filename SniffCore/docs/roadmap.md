@@ -1,5 +1,7 @@
 # SniffCore Roadmap
 
+Current status: Milestone 1 is complete and the first usable Phase 1 flow is in place.
+
 ## Milestone 1: Skeleton
 
 - set up package structure

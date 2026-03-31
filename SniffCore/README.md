@@ -2,73 +2,80 @@
 
 `SniffCore` is the Layer 2 project in the `LAYERxLABS` series.
 
-The point of this project is not to brag that we opened Wireshark. The point is to show that we can take Layer 2 traffic from a controlled lab, break it down, and turn it into findings that make sense to someone else.
+The point of this project is not to brag that we opened Wireshark. The point is to take a Layer 2 capture from a lab, break it down, and hand back something another person can understand in a few minutes.
 
-## Project Direction
+Phase 1 is now working end-to-end.
 
-`SniffCore` will focus on packet capture, analysis, and reporting inside a legal lab environment.
+## What Phase 1 Does
 
-If Yersinia is used at all, it will only be used to generate test traffic inside an isolated lab. `SniffCore` itself should stay on the analysis side:
+- reads `.pcap` captures from a lab workflow
+- extracts source and destination MAC addresses, IP hints, frame sizes, and protocol labels
+- summarizes hosts, protocol mix, broadcast traffic, and top talkers
+- flags duplicate IP-to-MAC mappings
+- flags rapid source-MAC churn inside short windows
+- flags captures where broadcast traffic is dominating the frame mix
+- writes both JSON and Markdown reports
 
-- ingest `.pcap` or `.pcapng` files
-- extract Layer 2 and adjacent metadata
-- detect suspicious switching and local-network patterns
-- score findings
-- export evidence in clean formats
+## Why This Project Is Worth Building
 
-That makes the project stronger, safer, and much easier to defend in an interview.
+This is the kind of project that sounds better in an interview than "I used Wireshark."
 
-## Core Outcome
+The better story is:
 
-By the time this project is done, we should be able to say:
+> I built a Layer 2 analysis tool that could take a packet capture from a controlled lab, surface the interesting parts automatically, and generate a report before anyone had to dig through frames by hand.
 
-> We built a Layer 2 traffic analysis workflow that can take a lab capture, highlight ARP, DHCP, STP, and MAC-table abuse indicators, and produce a report that an analyst can read without opening Wireshark first.
+## Quick Start
 
-## Planned Feature Set
+Install the package locally:
 
-### Phase 1
+```powershell
+python -m pip install -e .
+```
 
-- import packet captures
-- summarize hosts, MAC addresses, protocols, and top talkers
-- flag duplicate IP-to-MAC mappings
-- flag sudden MAC churn and noisy broadcast behavior
-- export JSON and Markdown reports
+Analyze the sample capture:
 
-### Phase 2
+```powershell
+python -m sniffcore --pcap .\tests\fixtures\sample_phase1_lab.pcap --output-dir .\reports
+```
 
-- detect ARP spoofing indicators
-- detect DHCP starvation or rogue DHCP patterns
-- detect suspicious BPDU or STP activity from non-infrastructure hosts
-- compare one capture against a known-good baseline
+Run the test suite:
 
-### Phase 3
+```powershell
+pytest
+```
 
-- add a cleaner HTML report
-- add sample lab datasets
-- add simple charts for protocol distribution and anomaly counts
-- write a polished case-study report for the final portfolio
+## Current Output
 
-## Suggested Tech Stack
+Each run writes:
 
-- Wireshark or `tshark` for capture and packet export
-- Python for parsing, scoring, and report generation
-- `scapy` where custom packet inspection helps
-- `pytest` for parser and detector tests
+- a JSON report for automation or later processing
+- a Markdown report for quick review and sharing
 
-## Folder Guide
+## Project Shape
 
-- `docs/architecture.md` explains how the pipeline should fit together
-- `docs/roadmap.md` breaks the work into milestones
-- `src/sniffcore/` will hold the package code
-- `tests/` will hold fixtures and detector coverage
+- `src/sniffcore/ingest.py` handles capture loading
+- `src/sniffcore/analysis.py` builds host and protocol summaries
+- `src/sniffcore/detectors.py` raises the first Layer 2 findings
+- `src/sniffcore/reporting.py` writes the report files
+- `src/sniffcore/cli.py` runs the project from the command line
+- `tests/fixtures/sample_phase1_lab.pcap` is the synthetic lab capture used for validation
 
-## Resume Value
+## What Comes Next
 
-This project becomes strong resume material if we can show:
+Phase 2 will push this from useful to sharp:
 
-- how many captures were analyzed
-- how many devices and frames were processed
-- what kinds of anomalies were detected
-- how much review time the generated report saved compared to raw packet inspection
+- stronger ARP spoofing logic
+- DHCP anomaly detection
+- STP or BPDU-specific checks
+- baseline comparison against a known-good capture
 
-That is the difference between “used Wireshark” and “built a packet-analysis workflow.”
+## Resume Angle
+
+This project gets strong when we can show numbers:
+
+- captures analyzed
+- frames processed
+- anomalies raised
+- time saved compared with manual packet review
+
+That is the difference between "used Wireshark" and "built a packet-analysis workflow."

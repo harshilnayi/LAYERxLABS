@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sniffcore"
+version = "0.1.0"
+description = "Layer 2 packet capture analysis and reporting for controlled lab traffic."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["scapy>=2.7,<3"]
+
+[project.scripts]
+sniffcore = "sniffcore.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sniffcore*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
