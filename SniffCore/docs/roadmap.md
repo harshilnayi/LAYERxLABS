@@ -1,6 +1,6 @@
 # SniffCore Roadmap
 
-Current status: Milestones 1 through 4 have a working first pass, including baseline-aware Phase 2 detection.
+Current status: Milestones 1 through 4 are working, and Phase 3 polish is now in place with HTML output and scored findings.
 
 ## Milestone 1: Skeleton
 
@@ -34,7 +34,7 @@ Status: working first pass
 - severity scoring with reason strings
 - before/after comparison against a known-good capture
 
-Status: JSON and Markdown exports plus baseline comparison are working. HTML is still pending.
+Status: working
 
 ## Milestone 5: Portfolio Finish
 
@@ -42,6 +42,8 @@ Status: JSON and Markdown exports plus baseline comparison are working. HTML is 
 - write-up with setup, findings, and lessons learned
 - metrics table for resume bullets
 - clean sample data and repeatable demo steps
+
+Status: started
 
 ## Definition of Done
 

@@ -44,11 +44,12 @@ def main(argv: list[str] | None = None) -> int:
         top_talkers_limit=args.top,
         baseline_capture_path=args.baseline_pcap,
     )
-    json_path, markdown_path = write_reports(report, args.output_dir)
+    json_path, markdown_path, html_path = write_reports(report, args.output_dir)
 
     print(json.dumps(report["overview"], indent=2))
     print(f"JSON report: {json_path.resolve()}")
     print(f"Markdown report: {markdown_path.resolve()}")
+    print(f"HTML report: {html_path.resolve()}")
     return 0
 
 

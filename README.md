@@ -16,7 +16,7 @@ Current status: review and hardening stage.
 
 Layer 2 packet-capture analysis project focused on turning raw traffic into findings that are easy to explain in an interview.
 
-Current status: Phase 2 is live with ARP, DHCP, and STP checks plus baseline-aware comparison.
+Current status: Phase 3 is live with HTML reporting, scored findings, and a cleaner case-study flow.
 
 ### StripSec
 

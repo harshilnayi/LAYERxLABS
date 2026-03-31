@@ -32,20 +32,24 @@ def test_phase2_analysis_raises_baseline_aware_findings() -> None:
     assert "02:20:00:00:00:77" in comparison["new_dhcp_servers"]
     assert "02:20:00:00:00:88" in comparison["new_stp_senders"]
     assert report["overview"]["baseline_used"] is True
+    assert report["overview"]["severity_counts"]["high"] >= 3
 
 
 def test_phase2_report_mentions_baseline(tmp_path: Path) -> None:
     report = analyze_capture(SUSPECT, baseline_capture_path=BASELINE)
-    json_path, markdown_path = write_reports(report, tmp_path)
+    json_path, markdown_path, html_path = write_reports(report, tmp_path)
 
     assert json_path.exists()
     assert markdown_path.exists()
+    assert html_path.exists()
     payload = json.loads(json_path.read_text(encoding="utf-8"))
     assert payload["baseline_comparison"]["new_dhcp_servers"] == ["02:20:00:00:00:77"]
 
     markdown = markdown_path.read_text(encoding="utf-8")
     assert "## Baseline Comparison" in markdown
     assert "02:20:00:00:00:88" in markdown
+    assert "Recommended action" in markdown
+    assert "Capture Analysis Dashboard" in html_path.read_text(encoding="utf-8")
 
 
 def test_phase2_cli_accepts_baseline_capture(tmp_path: Path) -> None:
@@ -66,3 +70,4 @@ def test_phase2_cli_accepts_baseline_capture(tmp_path: Path) -> None:
     assert '"baseline_used": true' in result.stdout.lower()
     assert list(tmp_path.glob("sniffcore_report_*.json"))
     assert list(tmp_path.glob("sniffcore_report_*.md"))
+    assert list(tmp_path.glob("sniffcore_report_*.html"))

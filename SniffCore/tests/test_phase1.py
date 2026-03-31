@@ -22,6 +22,7 @@ def test_analysis_extracts_summary_and_findings() -> None:
     assert report["overview"]["total_frames"] == 11
     assert report["overview"]["broadcast_frames"] == 8
     assert report["overview"]["findings_count"] >= 3
+    assert report["overview"]["risk_score"] >= 60
     assert report["protocols"]["ARP"] == 9
     assert report["protocols"]["TCP"] == 2
 
@@ -33,13 +34,15 @@ def test_analysis_extracts_summary_and_findings() -> None:
 
 def test_report_writer_outputs_json_and_markdown(tmp_path: Path) -> None:
     report = analyze_capture(FIXTURE)
-    json_path, markdown_path = write_reports(report, tmp_path)
+    json_path, markdown_path, html_path = write_reports(report, tmp_path)
 
     assert json_path.exists()
     assert markdown_path.exists()
+    assert html_path.exists()
     payload = json.loads(json_path.read_text(encoding="utf-8"))
     assert payload["overview"]["total_frames"] == 11
     assert "SniffCore Analysis Report" in markdown_path.read_text(encoding="utf-8")
+    assert "Capture Analysis Dashboard" in html_path.read_text(encoding="utf-8")
 
 
 def test_cli_runs_end_to_end(tmp_path: Path) -> None:
@@ -58,3 +61,4 @@ def test_cli_runs_end_to_end(tmp_path: Path) -> None:
     assert '"total_frames": 11' in result.stdout
     assert list(tmp_path.glob("sniffcore_report_*.json"))
     assert list(tmp_path.glob("sniffcore_report_*.md"))
+    assert list(tmp_path.glob("sniffcore_report_*.html"))

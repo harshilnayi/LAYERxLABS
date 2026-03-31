@@ -8,6 +8,24 @@ from .detectors import run_detectors
 from .ingest import load_capture
 
 
+def _summarize_severity(findings: list[dict]) -> tuple[dict[str, int], int, str]:
+    counts = {"high": 0, "medium": 0, "low": 0}
+    for finding in findings:
+        severity = finding["severity"]
+        if severity in counts:
+            counts[severity] += 1
+
+    risk_score = min(100, counts["high"] * 30 + counts["medium"] * 15 + counts["low"] * 5)
+    if risk_score >= 70:
+        risk_level = "high"
+    elif risk_score >= 35:
+        risk_level = "medium"
+    else:
+        risk_level = "low"
+
+    return counts, risk_score, risk_level
+
+
 def analyze_capture(
     capture_path: str | Path,
     top_talkers_limit: int = 5,
@@ -28,6 +46,7 @@ def analyze_capture(
     findings = [finding.to_dict() for finding in run_detectors(frames, baseline_profile=baseline_profile)]
     unique_source_macs = sorted({frame.src_mac for frame in frames if frame.src_mac})
     broadcast_frames = sum(1 for frame in frames if frame.is_broadcast)
+    severity_counts, risk_score, risk_level = _summarize_severity(findings)
 
     return {
         "capture": {
@@ -40,6 +59,9 @@ def analyze_capture(
             "broadcast_frames": broadcast_frames,
             "findings_count": len(findings),
             "baseline_used": baseline_capture_path is not None,
+            "severity_counts": severity_counts,
+            "risk_score": risk_score,
+            "risk_level": risk_level,
         },
         "protocols": protocol_counts,
         "top_talkers": top_talkers,

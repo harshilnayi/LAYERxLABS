@@ -39,8 +39,10 @@ class HostSummary:
 class Finding:
     category: str
     severity: str
+    score: int
     title: str
     summary: str
+    recommendation: str
     evidence: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:

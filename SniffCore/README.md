@@ -4,7 +4,7 @@
 
 The point of this project is not to brag that we opened Wireshark. The point is to take a Layer 2 capture from a lab, break it down, and hand back something another person can understand in a few minutes.
 
-Phase 2 is now working end-to-end.
+Phase 3 is now working end-to-end.
 
 ## What It Does Right Now
 
@@ -18,7 +18,8 @@ Phase 2 is now working end-to-end.
 - flags DHCP server anomalies, including offers from servers outside a known-good baseline
 - flags STP sender drift and unexpected BPDU sources
 - compares a suspicious capture against a known-good baseline capture
-- writes both JSON and Markdown reports
+- assigns severity scores and recommended next actions for each finding
+- writes JSON, Markdown, and HTML reports
 
 ## Why This Project Is Worth Building
 
@@ -60,6 +61,7 @@ Each run writes:
 
 - a JSON report for automation or later processing
 - a Markdown report for quick review and sharing
+- an HTML dashboard that is easier to show in a portfolio or demo
 
 ## Project Shape
 
@@ -71,15 +73,16 @@ Each run writes:
 - `src/sniffcore/cli.py` runs the project from the command line
 - `tests/fixtures/sample_phase1_lab.pcap` is the synthetic lab capture used for validation
 - `tests/fixtures/phase2_baseline_clean.pcap` and `tests/fixtures/phase2_suspect_lab.pcap` drive the baseline-aware checks
+- `docs/demo-walkthrough.md` is the short case-study path for showing the project to someone else
 
 ## What Comes Next
 
-Phase 3 is where this turns from solid to polished:
+The next round is portfolio finishing work:
 
-- HTML reporting
-- clearer severity scoring and evidence summaries
-- better fixture variety
-- case-study polish for the final portfolio
+- one polished end-to-end writeup with screenshots
+- a tighter metric story for resume bullets
+- fixture expansion beyond the two current scenarios
+- final prep for the Layer 5 follow-up project
 
 ## Resume Angle
 
