@@ -22,7 +22,7 @@ Current status: Phase 3 is live with HTML reporting, scored findings, and a clea
 
 Layer 5 placeholder for the final project in this series.
 
-Current status: planned.
+Current status: first working pass is live with downgrade detection, cookie hygiene checks, and HTML reporting.
 
 ## Repo Layout
 

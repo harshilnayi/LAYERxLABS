@@ -1,0 +1,50 @@
+{
+  "capture_name": "phase1_transport_hygiene",
+  "pages": [
+    {
+      "url": "https://portal.lab/login",
+      "status_code": 200,
+      "headers": {
+        "server": "nginx"
+      },
+      "cookies": [
+        {
+          "name": "sessionid",
+          "secure": false,
+          "http_only": true
+        }
+      ],
+      "resources": [
+        "http://static.portal.lab/logo.png",
+        "https://portal.lab/app.js"
+      ]
+    },
+    {
+      "url": "https://portal.lab/start",
+      "status_code": 302,
+      "headers": {
+        "location": "http://portal.lab/login"
+      },
+      "cookies": [],
+      "resources": []
+    },
+    {
+      "url": "https://admin.lab/dashboard",
+      "status_code": 200,
+      "headers": {
+        "strict-transport-security": "max-age=31536000"
+      },
+      "cookies": [
+        {
+          "name": "csrftoken",
+          "secure": true,
+          "http_only": false,
+          "same_site": "Lax"
+        }
+      ],
+      "resources": [
+        "https://admin.lab/app.js"
+      ]
+    }
+  ]
+}
