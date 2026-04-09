@@ -2,6 +2,8 @@
 
 Current status: Milestones 1 through 4 are working, and Phase 3 polish is now in place with HTML output and scored findings.
 
+The fixture set now includes both suspicious captures and calmer reference captures so detector thresholds can be checked against more realistic variation.
+
 ## Milestone 1: Skeleton
 
 - set up package structure

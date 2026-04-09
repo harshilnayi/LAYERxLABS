@@ -12,6 +12,12 @@ SEVERITY_SCORES = {
     "high": 90,
 }
 
+BROADCAST_FRAME_MIN = 6
+BROADCAST_RATIO_MIN = 0.5
+MAC_CHURN_FRAME_MIN = 8
+MAC_CHURN_UNIQUE_MAC_MIN = 7
+BASELINE_DRIFT_MAC_MIN = 3
+
 
 def _finding(
     *,
@@ -56,11 +62,11 @@ def detect_duplicate_ip_mappings(frames: list[FrameRecord]) -> list[Finding]:
 
 def detect_broadcast_noise(frames: list[FrameRecord]) -> list[Finding]:
     broadcast_frames = [frame for frame in frames if frame.is_broadcast]
-    if not frames or len(broadcast_frames) < 5:
+    if not frames or len(broadcast_frames) < BROADCAST_FRAME_MIN:
         return []
 
     ratio = len(broadcast_frames) / len(frames)
-    if ratio < 0.4:
+    if ratio < BROADCAST_RATIO_MIN:
         return []
 
     talkers = Counter(frame.src_mac for frame in broadcast_frames if frame.src_mac)
@@ -97,7 +103,7 @@ def detect_mac_churn(frames: list[FrameRecord], window_seconds: int = 10) -> lis
         window_end = frame.timestamp + window_seconds
         window = [item for item in ordered[index:] if item.timestamp <= window_end]
         unique_macs = sorted({item.src_mac for item in window if item.src_mac})
-        if len(window) >= 6 and len(unique_macs) >= 5:
+        if len(window) >= MAC_CHURN_FRAME_MIN and len(unique_macs) >= MAC_CHURN_UNIQUE_MAC_MIN:
             findings.append(
                 _finding(
                     category="mac_churn",
@@ -270,7 +276,7 @@ def detect_baseline_drift(frames: list[FrameRecord], baseline_profile: dict | No
 
     current_source_macs = sorted({frame.src_mac for frame in frames if frame.src_mac})
     new_source_macs = sorted(set(current_source_macs) - set(baseline_profile["source_macs"]))
-    if len(new_source_macs) < 2:
+    if len(new_source_macs) < BASELINE_DRIFT_MAC_MIN:
         return []
 
     return [

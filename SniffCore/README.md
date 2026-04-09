@@ -71,8 +71,7 @@ Each run writes:
 - `src/sniffcore/detectors.py` raises the first Layer 2 findings
 - `src/sniffcore/reporting.py` writes the report files
 - `src/sniffcore/cli.py` runs the project from the command line
-- `tests/fixtures/sample_phase1_lab.pcap` is the synthetic lab capture used for validation
-- `tests/fixtures/phase2_baseline_clean.pcap` and `tests/fixtures/phase2_suspect_lab.pcap` drive the baseline-aware checks
+- `tests/fixtures/` now includes both suspicious and normal-looking captures so detector behavior can be checked from more than one angle
 - `docs/demo-walkthrough.md` is the short case-study path for showing the project to someone else
 
 ## What Comes Next
@@ -81,7 +80,7 @@ The next round is polish work:
 
 - one polished end-to-end writeup with screenshots
 - a cleaner metrics summary across more fixtures
-- fixture expansion beyond the two current scenarios
+- a few more fixture styles from different small lab situations
 - final prep for the Layer 5 follow-up project
 
 ## Learning Value
