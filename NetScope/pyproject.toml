@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "netscope"
+version = "0.1.0"
+description = "NetScope uses Nmap scan results to investigate rogue devices on a local network."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Shanay Soni" }, { name = "Harshil Nayi" }]
+dependencies = []
+
+[project.scripts]
+netscope = "netscope.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["netscope*"]

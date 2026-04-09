@@ -1,23 +1,73 @@
 # NetScope
 
-`NetScope` is the Layer 1 slot inside `LAYERxLABS`.
+`NetScope` is the Layer 1 project in the `LAYERxLABS` series.
 
-Right now this folder is intentionally light because the first implementation started outside this repo. Before we carry that work in here, we want the project story to be solid:
+It focuses on rogue-device investigation and local-network visibility. The goal is simple: scan a target segment, compare what shows up against a known baseline, and turn the results into something easier to review than raw Nmap output.
 
-- the scan flow has to match what the docs promise
-- the evidence has to be useful, not just dumped to disk
-- the repo has to feel real, understandable, and worth learning from
+## What It Does
 
-## Current Hand-Off Status
+- runs Nmap-based investigation scans against a target range
+- parses Nmap XML directly
+- tracks approved devices in a JSON baseline
+- flags hosts as `known`, `unknown`, or `suspicious`
+- writes JSON, CSV, Markdown, and HTML reports
 
-- Layer 1 work is being tightened outside this repo first
-- Next step: fold the improved version into `NetScope`
+## Project Shape
 
-## What NetScope Should Eventually Show
+- `netscope/cli.py` runs the command-line workflow
+- `netscope/nmap_runner.py` builds and runs Nmap commands, then parses XML output
+- `netscope/analyzer.py` scores and classifies observed hosts
+- `netscope/baseline.py` stores and loads approved devices
+- `netscope/reporter.py` writes the final reports
+- `tests/` covers parsing, analysis, reporting, and Nmap command construction
 
-- baseline-aware device tracking
-- rogue or unknown host triage
-- practical investigation reports
-- clear before/after metrics from test scans
+## Install
 
-This folder will grow once the Layer 1 work is ready to be moved in.
+```powershell
+python -m pip install -e .
+```
+
+Nmap must also be installed and available on `PATH` for live scans.
+
+## Quick Start
+
+Create a baseline file:
+
+```powershell
+python -m netscope.cli init-baseline
+```
+
+Add approved devices:
+
+```powershell
+python -m netscope.cli add-device --name "Office Laptop" --mac "AA:BB:CC:DD:EE:FF" --owner "Security Team"
+python -m netscope.cli add-device --name "Printer" --ip "192.168.1.50"
+```
+
+Run an investigation scan:
+
+```powershell
+python -m netscope.cli investigate --targets "192.168.1.0/24"
+```
+
+If you want OS detection as part of a deeper scan, add it explicitly:
+
+```powershell
+python -m netscope.cli investigate --targets "192.168.1.0/24" --extra-arg=-O
+```
+
+Analyze an existing XML file:
+
+```powershell
+python -m netscope.cli investigate --xml-input ".\tests\fixtures\sample_nmap.xml"
+```
+
+Run the tests:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+## Current Notes
+
+This project is built as a practical investigation aid for a controlled lab. It is meant to help review what appeared on a network segment, compare it with expected devices, and keep the findings in a format that is easy to revisit.
