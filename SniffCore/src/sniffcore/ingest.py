@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
+
+# SniffCore reads captures from disk and does not rely on live libpcap sockets.
+# On some Windows setups Scapy tries to enable libpcap from the environment and
+# prints a warning even though offline PCAP parsing still works fine.
+os.environ["SCAPY_USE_LIBPCAP"] = "no"
 
 from scapy.layers.dhcp import DHCP
 from scapy.layers.inet import IP, TCP, UDP
