@@ -1,0 +1,51 @@
+{
+  "capture_name": "clean_hardened_session",
+  "pages": [
+    {
+      "url": "https://portal.lab/login",
+      "method": "GET",
+      "status_code": 200,
+      "headers": {
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "content-security-policy": "default-src 'self'; frame-ancestors 'none'",
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "cookies": [
+        {
+          "name": "sessionid",
+          "secure": true,
+          "http_only": true,
+          "same_site": "Lax"
+        }
+      ],
+      "resources": [
+        "https://portal.lab/app.js",
+        "https://portal.lab/styles.css"
+      ],
+      "form_fields": []
+    },
+    {
+      "url": "https://portal.lab/dashboard",
+      "method": "GET",
+      "status_code": 200,
+      "headers": {
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "content-security-policy": "default-src 'self'; img-src 'self' data:",
+        "referrer-policy": "strict-origin-when-cross-origin"
+      },
+      "request_cookies": [
+        {
+          "name": "sessionid",
+          "secure": true,
+          "http_only": true,
+          "same_site": "Lax"
+        }
+      ],
+      "cookies": [],
+      "resources": [
+        "https://portal.lab/dashboard.js"
+      ],
+      "form_fields": []
+    }
+  ]
+}

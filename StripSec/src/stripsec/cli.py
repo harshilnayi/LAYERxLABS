@@ -10,9 +10,9 @@ from .reporting import write_reports
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="stripsec",
-        description="Analyze web-session captures for downgrade and HTTPS hygiene issues.",
+        description="Analyze JSON or HAR web-session captures for transport and session-security issues.",
     )
-    parser.add_argument("--input", required=True, help="Path to the structured JSON capture.")
+    parser.add_argument("--input", required=True, help="Path to a structured JSON capture or HAR export.")
     parser.add_argument("--output-dir", default="reports", help="Directory where reports should be written.")
     return parser
 

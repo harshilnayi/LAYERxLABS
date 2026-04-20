@@ -3,6 +3,7 @@
   "pages": [
     {
       "url": "https://portal.lab/login",
+      "method": "GET",
       "status_code": 200,
       "headers": {
         "server": "nginx"
@@ -21,6 +22,7 @@
     },
     {
       "url": "https://portal.lab/start",
+      "method": "GET",
       "status_code": 302,
       "headers": {
         "location": "http://portal.lab/login"
@@ -30,9 +32,12 @@
     },
     {
       "url": "https://admin.lab/dashboard",
+      "method": "GET",
       "status_code": 200,
       "headers": {
-        "strict-transport-security": "max-age=31536000"
+        "strict-transport-security": "max-age=31536000",
+        "content-security-policy": "default-src 'self'",
+        "referrer-policy": "strict-origin-when-cross-origin"
       },
       "cookies": [
         {

@@ -9,6 +9,8 @@ class CookieRecord:
     secure: bool = False
     http_only: bool = False
     same_site: str | None = None
+    domain: str | None = None
+    path: str | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -18,13 +20,19 @@ class CookieRecord:
 class PageRecord:
     url: str
     status_code: int
+    method: str = "GET"
     headers: dict[str, str] = field(default_factory=dict)
+    request_headers: dict[str, str] = field(default_factory=dict)
     cookies: list[CookieRecord] = field(default_factory=list)
+    request_cookies: list[CookieRecord] = field(default_factory=list)
     resources: list[str] = field(default_factory=list)
+    form_fields: list[str] = field(default_factory=list)
+    post_body: str | None = None
 
     def to_dict(self) -> dict:
         data = asdict(self)
         data["cookies"] = [cookie.to_dict() for cookie in self.cookies]
+        data["request_cookies"] = [cookie.to_dict() for cookie in self.request_cookies]
         return data
 
 

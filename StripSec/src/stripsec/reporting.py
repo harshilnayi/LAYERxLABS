@@ -16,17 +16,29 @@ SEVERITY_COLORS = {
 def _render_markdown(report: dict) -> str:
     overview = report["overview"]
     severity_counts = overview["severity_counts"]
+    protection = report["protection_summary"]
     lines = [
         "# StripSec Analysis Report",
         "",
         f"- Capture name: {report['capture']['name']}",
+        f"- Capture format: {report['capture']['format']}",
         f"- Source file: `{report['capture']['source']}`",
         f"- Pages analyzed: {overview['pages_analyzed']}",
         f"- Domains seen: {overview['domains_seen']}",
         f"- HTTPS pages: {overview['https_pages']}",
         f"- HTTP pages: {overview['http_pages']}",
+        f"- Redirect downgrades: {overview['redirect_downgrades']}",
         f"- Findings raised: {overview['findings_count']}",
         f"- Risk score: {overview['risk_score']}/100 ({overview['risk_level']})",
+        "",
+        "## Protection Summary",
+        "",
+        f"- HTTPS pages with HSTS: {protection['https_pages_with_hsts']}",
+        f"- HTTPS pages with CSP: {protection['https_pages_with_csp']}",
+        f"- HTTPS pages with Referrer-Policy: {protection['https_pages_with_referrer_policy']}",
+        f"- Session cookies seen: {protection['session_cookies_seen']}",
+        f"- Secure session cookies: {protection['secure_session_cookies']}",
+        f"- HTTP submission pages: {protection['http_submission_pages']}",
         "",
         "## Severity Mix",
         "",
@@ -40,6 +52,11 @@ def _render_markdown(report: dict) -> str:
 
     for domain in report["domains"]:
         lines.append(f"- {domain}")
+
+    if report["redirect_downgrades"]:
+        lines.extend(["", "## Downgrade Paths", ""])
+        for path in report["redirect_downgrades"]:
+            lines.append(f"- {path['from']} -> {path['to']} ({path['status_code']})")
 
     lines.extend(["", "## Findings", ""])
     if not report["findings"]:
@@ -62,25 +79,45 @@ def _render_markdown(report: dict) -> str:
     return "\n".join(lines)
 
 
+def _card(title: str, value: object) -> str:
+    return f'<article class="card"><h2>{escape(title)}</h2><p>{escape(str(value))}</p></article>'
+
+
 def _render_html(report: dict) -> str:
     overview = report["overview"]
     severity_counts = overview["severity_counts"]
-    cards = [
-        ("Pages", overview["pages_analyzed"]),
-        ("Domains", overview["domains_seen"]),
-        ("Findings", overview["findings_count"]),
-        ("Risk", f"{overview['risk_score']}/100"),
-    ]
+    protection = report["protection_summary"]
 
     card_html = "\n".join(
-        f'<article class="card"><h2>{escape(title)}</h2><p>{escape(str(value))}</p></article>'
-        for title, value in cards
+        [
+            _card("Pages", overview["pages_analyzed"]),
+            _card("Domains", overview["domains_seen"]),
+            _card("Findings", overview["findings_count"]),
+            _card("Risk", f"{overview['risk_score']}/100"),
+        ]
     )
 
     severity_html = "\n".join(
         f'<div class="severity-row"><span>{escape(level.title())}</span><strong>{count}</strong></div>'
         for level, count in severity_counts.items()
     )
+
+    protection_rows = "\n".join(
+        f"<tr><td>{escape(label)}</td><td>{value}</td></tr>"
+        for label, value in [
+            ("HTTPS pages with HSTS", protection["https_pages_with_hsts"]),
+            ("HTTPS pages with CSP", protection["https_pages_with_csp"]),
+            ("HTTPS pages with Referrer-Policy", protection["https_pages_with_referrer_policy"]),
+            ("Session cookies seen", protection["session_cookies_seen"]),
+            ("Secure session cookies", protection["secure_session_cookies"]),
+            ("HTTP submission pages", protection["http_submission_pages"]),
+        ]
+    )
+
+    downgrade_rows = "\n".join(
+        f"<tr><td>{escape(path['from'])}</td><td>{escape(path['to'])}</td><td>{path['status_code']}</td></tr>"
+        for path in report["redirect_downgrades"]
+    ) or "<tr><td colspan='3'>No downgrade paths found.</td></tr>"
 
     finding_html = "\n".join(
         f"""
@@ -127,7 +164,7 @@ def _render_html(report: dict) -> str:
         radial-gradient(circle at top left, rgba(154, 52, 18, 0.16), transparent 28%),
         linear-gradient(135deg, #efe1d3, var(--bg));
     }}
-    main {{ max-width: 1140px; margin: 0 auto; padding: 28px 18px 48px; }}
+    main {{ max-width: 1180px; margin: 0 auto; padding: 28px 18px 48px; }}
     .hero {{
       padding: 28px;
       border-radius: 24px;
@@ -136,7 +173,7 @@ def _render_html(report: dict) -> str:
       box-shadow: 0 28px 70px rgba(29, 39, 49, 0.15);
     }}
     .hero h1 {{ margin: 0 0 8px; font-size: clamp(2rem, 4vw, 3.3rem); }}
-    .hero p {{ margin: 8px 0; color: rgba(255, 250, 245, 0.86); max-width: 860px; }}
+    .hero p {{ margin: 8px 0; color: rgba(255, 250, 245, 0.86); max-width: 900px; }}
     .cards {{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -161,6 +198,9 @@ def _render_html(report: dict) -> str:
     .finding-head {{ display: flex; justify-content: space-between; gap: 12px; align-items: center; }}
     .badge {{ display: inline-block; padding: 6px 10px; border-radius: 999px; color: white; font-size: 0.78rem; font-weight: 700; }}
     .score {{ color: var(--muted); font-size: 0.95rem; font-weight: 600; }}
+    table {{ width: 100%; border-collapse: collapse; margin-top: 12px; }}
+    th, td {{ text-align: left; padding: 12px 10px; border-bottom: 1px solid #eadfce; vertical-align: top; }}
+    th {{ color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.82rem; }}
     pre {{ white-space: pre-wrap; word-break: break-word; background: #f7efe6; border-radius: 14px; padding: 12px; font-size: 0.88rem; }}
     .empty {{ color: var(--muted); }}
   </style>
@@ -171,7 +211,7 @@ def _render_html(report: dict) -> str:
       <p>StripSec Layer 5 Review</p>
       <h1>Transport Security Dashboard</h1>
       <p>This report highlights downgrade paths, insecure cookie handling, missing HTTPS controls, and other web-session hygiene issues from a controlled lab capture.</p>
-      <p>Capture: {escape(report['capture']['name'])} | Risk: {overview['risk_score']}/100 ({escape(overview['risk_level'])})</p>
+      <p>Capture: {escape(report['capture']['name'])} | Format: {escape(report['capture']['format'])} | Risk: {overview['risk_score']}/100 ({escape(overview['risk_level'])})</p>
     </section>
 
     <section class="cards">
@@ -179,10 +219,25 @@ def _render_html(report: dict) -> str:
     </section>
 
     <section class="panel">
+      <h2>Protection Summary</h2>
+      <table>
+        <tbody>{protection_rows}</tbody>
+      </table>
+    </section>
+
+    <section class="panel">
       <h2>Severity Mix</h2>
       <div class="severity-grid">
         {severity_html}
       </div>
+    </section>
+
+    <section class="panel">
+      <h2>Downgrade Paths</h2>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Status</th></tr></thead>
+        <tbody>{downgrade_rows}</tbody>
+      </table>
     </section>
 
     <section class="panel">

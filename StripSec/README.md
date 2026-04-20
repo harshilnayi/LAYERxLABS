@@ -2,17 +2,21 @@
 
 `StripSec` is the Layer 5 project in the `LAYERxLABS` series.
 
-This project is intentionally built on the defensive side. Instead of recreating attack tooling, `StripSec` focuses on transport downgrade risk, HTTPS hygiene, cookie safety, and session handling mistakes inside controlled lab traffic.
+This project stays on the defensive side. Instead of trying to recreate session-hijack tooling, `StripSec` reviews captured web traffic from a controlled lab and points out the places where transport security or session handling breaks down.
 
-That makes it safer, easier to explain, and stronger as a learning project.
+The goal is to make the interesting parts visible fast: downgrade paths, weak HTTPS posture, cookie handling mistakes, and browser-side policy gaps.
 
 ## What It Does Right Now
 
-- reads a structured web-session capture from JSON
+- reads either a structured JSON capture or a browser-exported HAR file
 - flags HTTP downgrade redirects
+- flags sensitive form submissions that happen over HTTP
+- flags sensitive values that show up in query strings
 - flags HTTPS responses that are missing HSTS
 - flags session cookies that are missing the `Secure` flag
+- flags cookies that are missing `HttpOnly` or `SameSite`
 - flags mixed-content resources on HTTPS pages
+- flags missing browser protection headers like CSP and Referrer-Policy
 - assigns severity scores and recommended next actions
 - writes JSON, Markdown, and HTML reports
 
@@ -30,6 +34,12 @@ Run the sample analysis:
 python -m stripsec --input .\tests\fixtures\sample_transport_capture.json --output-dir .\reports
 ```
 
+Run the HAR sample:
+
+```powershell
+python -m stripsec --input .\tests\fixtures\sample_browser_export.har --output-dir .\reports
+```
+
 Run the tests:
 
 ```powershell
@@ -44,14 +54,21 @@ Each run writes:
 - a Markdown summary for quick review
 - an HTML dashboard for easier review
 
+Each report includes:
+
+- a short risk summary with severity counts
+- a protection summary for HSTS, CSP, Referrer-Policy, and session-cookie coverage
+- downgrade-path evidence when redirects push traffic toward HTTP
+- recommendation text tied to each finding
+
 ## Project Shape
 
-- `src/stripsec/ingest.py` loads the session capture
-- `src/stripsec/detectors.py` raises downgrade and session-hygiene findings
+- `src/stripsec/ingest.py` loads either structured JSON captures or HAR exports
+- `src/stripsec/detectors.py` raises downgrade, session, and browser-policy findings
 - `src/stripsec/pipeline.py` assembles the final report
 - `src/stripsec/reporting.py` writes the report files
 - `src/stripsec/cli.py` runs the tool from the command line
-- `tests/fixtures/sample_transport_capture.json` is the starter lab fixture
+- `tests/fixtures/` holds both noisy and cleaner lab captures
 
 ## How To Start It Any Time
 
@@ -70,10 +87,14 @@ cd .\StripSec
 python -m stripsec --input .\tests\fixtures\sample_transport_capture.json --output-dir .\reports
 ```
 
-## Good Project Story
+## Sample Inputs
 
-The story here is not "I ran sslstrip."
+- `tests/fixtures/sample_transport_capture.json` is a hand-shaped lab capture with several clear problems
+- `tests/fixtures/sample_browser_export.har` shows the same kind of review flow on browser-exported traffic
+- `tests/fixtures/clean_hardened_capture.json` is a quieter reference case that should stay clean
 
-The better story is:
+## Why This Shape Works
 
-> I built a Layer 5 review workflow that spots downgrade paths, insecure session handling, and missing HTTPS controls in captured web traffic, then turns that into a report someone else can act on.
+`StripSec` is meant to answer a simple question: if someone hands over a captured web session, can we quickly tell whether transport and session safety are holding up?
+
+That keeps the project grounded in analysis, evidence, and repeatable lab work instead of reducing it to a thin wrapper around one legacy tool.
